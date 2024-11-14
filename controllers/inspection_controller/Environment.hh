@@ -235,9 +235,11 @@ int Environment::getSample(double x, double y) {
         }
         if (result == 2) {
             lastSample = 1;
+            return 1;
         } else {
             if (result == 0) {
                 lastSample = 0;
+                return 0;
             }
         }  
     }

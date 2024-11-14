@@ -57,7 +57,7 @@ M5 = random_matrix()
 
 
 grid_start_seed = 1 # this is for the seed of the pattern
-sample_strategy = 0 # your method
+sample_strategy = 3 # your method
 P_fp = 0
 P_fn = 0
 

@@ -17,3 +17,8 @@ plt.figure()
 plt.plot(t,y)
 plt.show()
 
+a,b = x.compute_std_beliefs_over_time()
+
+plt.figure()
+plt.plot(a,b)
+plt.show()

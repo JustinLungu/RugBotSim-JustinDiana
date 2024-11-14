@@ -8,7 +8,7 @@ PORT=$4
 line=$((INSTANCE_ID + 1))
 
 # Kill webots after WB_TIMEOUT seconds of no finish
-WB_TIMEOUT=60
+WB_TIMEOUT=600
 
 # Set the input directory (relative to the current working directory)
 INPUT_DIR=Instance_${INSTANCE_ID}

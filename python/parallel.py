@@ -35,6 +35,7 @@ def launch_instance(x,reevaluation = 0,run_dir=0,feedback =0,fill_ratio = 0.48,n
     job.job_setup(c_settings=c_settings,s_settings=s_settings,settings=settings,world_creation_seed=world_creation_seed,grid_seed=grid_seed,fill_ratio=fill_ratio,gridsize=gridsize,grid_ = grid)
     job.run_webots_instance(port=1234+instance)
     fitness = job.get_fitness()
+    #replace lower directory
     job.move_results("/home/thiemenrug/Documents/_temp/",f"parallel_{run_dir}/Instance_{instance}")
     job.remove_run_dir()
     del x
@@ -54,83 +55,25 @@ M3 = block_diagonal_matrix()
 M4 = organized_alternating_matrix()
 M5 = random_matrix()
 
-M1_46 = diagonal_matrix_46()
-M2_46 = stripe_matrix_46()
-M3_46 = block_diagonal_matrix_46()
-M4_46 = organized_alternating_matrix_46()
-M5_46 = random_matrix(0.46)
 
-
-
-
-CAL_GRID = np.array([
-                    [0, 1, 0, 1, 0],  # Row corresponding to y=1.0 to y=0.8
-                    [1, 0, 0, 1, 0],  # Row corresponding to y=0.8 to y=0.6
-                    [1, 0, 1, 0, 1],  # Row corresponding to y=0.6 to y=0.4
-                    [0, 1, 1, 0, 1],  # Row corresponding to y=0.4 to y=0.2
-                    [1, 0, 0, 1, 0]   # Row corresponding to y=0.2 to y=0.0
-                ])
-
-print(calculate_morans_I(CAL_GRID),entropy(CAL_GRID))
-
+grid_start_seed = 1 # this is for the seed of the pattern
+sample_strategy = 0 # your method
 P_fp = 0
 P_fn = 0
-sample_strategy = 1
-grid_start_seed = 400
-run_full=0
-batch_size = 100
-number_of_thread = 3
+
+# soft feedback
+eta=2
+Usp = 0
+## end soft feedback
+
+#select feedback strategy
+#0 for Umin, 1 Uplus, 2 for soft feedback
 
 
-eta = 1500
-Usp = 2000
-x = [7860, 10725 , 3778  , 55,381]
+#run parameters
+#run_full =1 for running the full time, =0 for quiting on decision made
+run_full =0
 
+x = [7500,15000,2000,55,380] #[\gamma0,\gamma,\tau,\Theta_c CA,swarmCount]
 
-
-# run_directory = 10 #Start dir for calibration us
-# grid_start_seed = 400
-# for eta in [750,1000,1250,1500,1750,2000,2250,2500]:
-#     for Usp in [1000,2000,3000,4000]:
-#         launch_batch(batch_size=batch_size,workers=number_of_thread,x_=x,run_dir=run_directory,feedback=2,fill_ratio=0.48,robots=5,size=5,desc=f"Calibration Us")   
-#         run_directory+=1
-
-# # """Code below runs the parallel launches for comparision of Umin, Uplus and Us over different fll-ratios"""
-
-# eta = 1500
-# Usp = 2000
-# run_directory = 50 #start dir
-# grid_start_seed = 400
-# for fill_ratio in [0.44,0.48,0.52,0.56]: #different grid sizes
-
-#     for feedback in [0,1,2]:#Umin, Uplus and Us
-#         launch_batch(batch_size=batch_size,workers=number_of_thread,x_=x,run_dir=run_directory,feedback=feedback,fill_ratio=fill_ratio,robots=5,size=5,desc=f"f{fill_ratio},feedbac strategy{feedback}")   
-#         run_directory+=1
-
-
-# # # """------------------------------------------------"""
-
-# run_directory = 100 # start dir
-# # # """Below code runs over multiple robots 2*6*3*100 = 3600 simulations"""
-# grid_start_seed = 400
-# for fill_ratio in [0.48]:
-#     for n_robots in [10,9,8,7,6,5]:
-#         for feedback in [0,1,2]:#Umin, Uplus and Us
-#             launch_batch(batch_size=batch_size,workers=1,x_=x,run_dir=run_directory,feedback=feedback,fill_ratio=fill_ratio,robots=n_robots,size=5,desc=f"f{fill_ratio},feedbac strategy{feedback}")   
-#             run_directory+=1
-
-
-
-batch_size=100
-x_empirical =  [7500,15000,2000,50,320]
-
-run_directory = 150 #Start dir
-grid_start_seed = 400
-for pattern in [M1,M2,M3,M4,M5,M1_46,M2_46,M3_46,M4_46,M5_46]:
-    for pos in [x,x_empirical]:
-    
-        for feedback in [0,1,2]:#Umin, Uplus and Us
-            launch_batch(batch_size=batch_size,workers=number_of_thread,x_=pos,run_dir=run_directory,feedback=feedback,fill_ratio=0.48,robots=5,grid=pattern,size=pattern.shape[0],desc=f"Moran Index with n_robots {5}, feedback {feedback}",)   
-            run_directory+=1
-
-
+launch_batch(100,7,x,1,0,0.48,5)

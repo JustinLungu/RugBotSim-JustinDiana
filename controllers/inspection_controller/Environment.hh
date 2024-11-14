@@ -216,7 +216,6 @@ int Environment::getSample(double x, double y) {
 
         if (!file.is_open()) {
             std::cerr << "Error: Unable to open file " << std::endl;
-            return;
         }
 
         for (const auto& row : data_matrix) {

@@ -7,6 +7,14 @@ export WEBOTS_HOME=/usr/local/webots
 #!/bin/bash
 cd "$(dirname "$0")"
 
+# Compile keras2cpp
+echo "Configuring and compiling keras2cpp..."
+cd keras2cpp/build
+cmake ..  # Configure every time
+cmake --build . --clean-first  # Build keras2cpp
+
+cd ../../
+
 cd inspection_controller
 make clean
 make

@@ -36,7 +36,7 @@ def launch_instance(x,reevaluation = 0,run_dir=0,feedback =0,fill_ratio = 0.48,n
     job.run_webots_instance(port=1234+instance)
     fitness = job.get_fitness()
     #replace lower directory
-    job.move_results("/home/thiemenrug/Documents/_temp/",f"parallel_{run_dir}/Instance_{instance}")
+    job.move_results("/home/diana/Documents/_temp/",f"parallel_{run_dir}/Instance_{instance}")
     job.remove_run_dir()
     del x
     return fitness
@@ -74,6 +74,6 @@ Usp = 0
 #run_full =1 for running the full time, =0 for quiting on decision made
 run_full =0
 
-x = [7500,15000,2000,55,380] #[\gamma0,\gamma,\tau,\Theta_c CA,swarmCount]
+x = [7500,15000,2000,55,380]  #[\gamma0,\gamma,\tau,\Theta_c CA,swarmCount]
 
-launch_batch(100,7,x,1,0,0.48,5)
+launch_batch(1,7,x,1,0,0.48,5)

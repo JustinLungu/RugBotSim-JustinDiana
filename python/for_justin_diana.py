@@ -7,8 +7,8 @@ from utils import *
 
 
 
-folder = "/home/thiemenrug/Documents/_temp/parallel_1/Instance_1/"
-x = WebotsProcessor(folder=folder,filename = "webots_log_1.txt",threshold=0.5)
+folder = "/home/diana/Documents/_temp/parallel_1/Instance_0/"
+x = WebotsProcessor(folder=folder,filename = "webots_log_0.txt",threshold=0.5)
 
 
 t,y = x.compute_average_belief_over_time()

@@ -346,10 +346,42 @@ int Environment::runKeras2cppExecutable() {
     // Change to the keras2cpp/build directory
     chdir("../keras2cpp/build");
 
+    // Check if the file curr_data.txt contains 24x3 values
+    std::ifstream file("curr_data.txt");
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open curr_data.txt" << std::endl;
+        chdir(originalDir);
+        return -1;
+    }
+
+    std::string line;
+    std::vector<std::vector<double>> data;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::vector<double> row;
+        double value;
+        while (iss >> value) {
+            row.push_back(value);
+        }
+        if (!row.empty()) {
+            data.push_back(row);
+        }
+    }
+    file.close();
+
+    // Validate that the file contains exactly 24 rows and each row has exactly 3 values
+    if (data.size() != 24 || !std::all_of(data.begin(), data.end(), [](const std::vector<double>& row) {
+            return row.size() == 3;
+        })) {
+        chdir(originalDir);
+        return -1;
+    }
+
     // Run keras2cpp with the dynamically generated data file as input
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen("./keras2cpp curr_data.txt", "r"), pclose);
     if (!pipe) {
         std::cerr << "Error: popen() failed" << std::endl;
+        chdir(originalDir);
         return -1;
     }
 
@@ -369,9 +401,6 @@ int Environment::runKeras2cppExecutable() {
                  output.end());
     std::replace(output.begin(), output.end(), ',', ' ');
 
-    // Print the cleaned output
-    // std::cout << "Cleaned keras2cpp output: " << output << std::endl;
-
     // Parse output to find the index with the highest value
     std::istringstream iss(output);
     std::vector<double> values;
@@ -386,11 +415,10 @@ int Environment::runKeras2cppExecutable() {
         int max_index = std::distance(values.begin(), max_it);
         return max_index;
     } else {
-        // std::cout << "No values found in the output." << std::endl;
+        std::cerr << "Error: No values found in the keras2cpp output" << std::endl;
         return -1;
     }
 }
-
 
 
 // Destructor definition

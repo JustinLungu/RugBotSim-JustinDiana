@@ -196,19 +196,24 @@ int Environment::getSample(double x, double y) {
     }
 
     if (method_read ==3){ // Use Neural Network to inference on accelerometer data
+        bool data_read = 0;
         for (std::pair<int, int> coloredTile : d_grid) {
             if (
                 (x >= 1.0 * coloredTile.first / d_nrTiles) &&
                 (x <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
                 (y >= 1.0 * coloredTile.second / d_nrTiles) &&
-                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles)
+                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles) &&
+                data_read == 0
             ) {
-                // lastSample = 1; 
-                data_matrix = readDataFromFile("../../data/capture2_40hz_60vol.txt"); // white tile, 1
+                data_matrix = readDataFromFile("../../data/capture3_80HZ_20vol.txt"); // white tile, 1
+                // std::cout<<"THE ROBOT SAMPLED 1, READ DATA3 \n";
+                data_read = 1;
             }
         }
-        // lastSample = 0;
-        data_matrix = readDataFromFile("../../data/capture1_60hz_30vol.txt"); // black tile, 0
+        if (data_read == 0){
+            data_matrix = readDataFromFile("../../data/capture1_60hz_30vol.txt"); // black tile, 0
+            // std::cout<<"THE ROBOT SAMPLED 0, READ DATA1 \n";
+        }
 
 
         // Writing current data in a file to be read for inference
@@ -231,14 +236,16 @@ int Environment::getSample(double x, double y) {
         // Call the keras2cpp executable and capture its output
         int result = runKeras2cppExecutable();
         if (result == -1) {
-            std::cout << "Something went very wrong... \n";
+            // std::cout << "Something went very wrong... \n";
         }
-        if (result == 2) {
+        if (result == 2 || result == 1) {
             lastSample = 1;
+            // std::cout<<"THE INFERENCE IS 1\n";
             return 1;
         } else {
             if (result == 0) {
                 lastSample = 0;
+                // std::cout<<"the inference is 0\n";
                 return 0;
             }
         }  
@@ -285,7 +292,7 @@ std::vector<std::vector<double>> Environment::readDataFromFile(const std::string
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 36000); // Ensure we can read 24 rows
     int start_row = dis(gen);
-
+    // std::cout << start_row << " START POS \n";
     
     std::string line;
     int current_row = 0;
@@ -317,6 +324,15 @@ std::vector<std::vector<double>> Environment::readDataFromFile(const std::string
     }
 
     file.close();
+    
+    // // Debugging: Print the data matrix
+    // std::cout << "Data matrix content:" << std::endl;
+    // for (const auto& row : data_matrix) {
+    //     for (const auto& value : row) {
+    //         std::cout << value << " ";
+    //     }
+    //     std::cout << std::endl; // New line after each row
+    // }
 
     return data_matrix; // Return the matrix
 }
@@ -354,7 +370,7 @@ int Environment::runKeras2cppExecutable() {
     std::replace(output.begin(), output.end(), ',', ' ');
 
     // Print the cleaned output
-    std::cout << "Cleaned keras2cpp output: " << output << std::endl;
+    // std::cout << "Cleaned keras2cpp output: " << output << std::endl;
 
     // Parse output to find the index with the highest value
     std::istringstream iss(output);
@@ -370,7 +386,7 @@ int Environment::runKeras2cppExecutable() {
         int max_index = std::distance(values.begin(), max_it);
         return max_index;
     } else {
-        std::cout << "No values found in the output." << std::endl;
+        // std::cout << "No values found in the output." << std::endl;
         return -1;
     }
 }

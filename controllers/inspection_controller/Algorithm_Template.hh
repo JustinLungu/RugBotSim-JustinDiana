@@ -111,6 +111,8 @@ void Algorithm1::runKeras2cppExecutable(const std::vector<double>& inputValues) 
         // Restore original directory before returning
         chdir(originalDir);
         return;
+    } else {
+        std::cout << "popen() succeeded. Running keras2cpp..." << std::endl;
     }
 
     // Read the output from the executable

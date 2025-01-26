@@ -1,4 +1,4 @@
-# General temporary and system files
+# general temporary and system files
 .DS_Store
 *.swp
 *.tmp
@@ -7,25 +7,25 @@
 Thumbs.db
 
 
-# Ignore temporary run files
+# temporary run files
 Run*
 *Run_*
 
-# Ignore Webots world backups or test files
+# Webots world backups or test files
 worlds/world_*
 
-# Ignore Webots project metadata
+# Webots project metadata
 *.wbproj
 
 
-# Ignore everything in build directories
+# everything in build directories
 controllers/*/build/*
 
 # Exclude .model files and keras2cpp executable
 !controllers/keras2cpp/build/*.model
 !controllers/keras2cpp/build/keras2cpp
 
-# Compiler-generated files
+# compiler generated files
 *.exe
 *.sln
 *.vcxproj
@@ -37,10 +37,6 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# Conda-specific files
-.conda/
-.condarc
-
-# Ignore Python cache files
+# python cache files
 __pycache__/
 *.pyc

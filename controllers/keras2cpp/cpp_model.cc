@@ -45,11 +45,10 @@ int main(int argc, char* argv[]) {
     Tensor out = model(in);
 
     // Print the output
-    // std::cout << "Model output from cpp: ";
     for (size_t i = 0; i < out.size(); ++i) {
-        // std::cout << out.data_[i] << " ";
+        std::cout << out.data_[i] << " ";
     }
-    // std::cout << std::endl;
+    std::cout << std::endl;
 
     return 0;
 }

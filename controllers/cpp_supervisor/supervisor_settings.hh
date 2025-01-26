@@ -8,19 +8,16 @@
 char *pPath = getenv("WB_WORKING_DIR");
 
 
-class SupervisorSettings
+class ControllerSettings
 {
 public:
     std::vector<double> values;
     void readSettings();
-    SupervisorSettings();
     
 };
-SupervisorSettings::SupervisorSettings() {
-    readSettings();
-}
 
-void SupervisorSettings::readSettings()
+
+void ControllerSettings::readSettings()
 {   
     char prob_name[256];
     sprintf(prob_name, "%s/s_settings.txt", pPath);

@@ -5,5 +5,10 @@ worlds/world_*
 
 
 
+# Ignore everything in the build folder
+controllers/keras2cpp/build/*
 
+# Exclude .model files and keras2cpp executable
+!controllers/keras2cpp/build/*.model
+!controllers/keras2cpp/build/keras2cpp
 

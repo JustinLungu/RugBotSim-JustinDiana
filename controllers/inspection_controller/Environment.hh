@@ -27,6 +27,7 @@ public:
     Environment(std::string file);
     ~Environment();
 
+
     /**
      * @brief Retrieves the color of the tile at the specified coordinates.
      * 
@@ -40,34 +41,18 @@ public:
      */
     int getSample(double x, double y);
 
-    // Set the seed for the random number generator
-    void setSeed(unsigned int seed);
 
-    // Set distributions with location information
-    void setVibDistribution(double shape, double scale, double location);
-    void setNonVibDistribution(double shape, double scale, double location);
-    void setFPdist(int fp_prob);
-    void setFNdist(int fn_prob);
     int method_read = 0;
     double vibThresh = 1.33;
     double lastSample = 0;
 
 
 private:
-    // Distributions with location information
-    std::gamma_distribution<double> d_vibDist; // Gamma distribution for vibration
-    double d_vibLoc; // Location parameter for vibration distribution
 
-    std::gamma_distribution<double> d_nonVibDist; // Gamma distribution for non-vibration
-    double d_nonVibLoc; // Location parameter for non-vibration distribution
 
-    std::bernoulli_distribution bernoulli_FP;
 
-    std::bernoulli_distribution bernoulli_FN;
     
-    std::vector<std::vector<double>> readDataFromFile(const std::string& filename); // read accelerometer data from a file
-    std::vector<std::vector<double>> data_matrix; // Matrix to store file data
-    int runKeras2cppExecutable(); // run inference using keras model
+
 
 
     std::mt19937 d_gen_environment; // Random number generator
@@ -88,27 +73,18 @@ Environment::Environment(std::string file) : filename(file) {
     readFile();
 }
 
-void Environment::setFPdist(int fp_prob){
-    bernoulli_FP.param(std::bernoulli_distribution::param_type(
-        (double (fp_prob) / 100)
-    ));
-    std::cout << "Prob(FP) = " << bernoulli_FP.p() <<"\n";    
-}
-
-void Environment::setFNdist(int fn_prob){
-    bernoulli_FN.param(std::bernoulli_distribution::param_type(
-        (double (fn_prob) / 100)
-    ));
-    std::cout << "Prob(FN) = " << bernoulli_FN.p() <<"\n";  
-}
 
 
 void Environment::readFile() {
+    std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
+    
     std::ifstream file;
     if (wPath != NULL) {
         char file_name[256];
         std::cout << "Webots working dir enabled" << '\n';
+        std::cout << filename << '\n';
         sprintf(file_name, "%s/world.txt", wPath);
+        std::cout << file_name << '\n';
         file.open(file_name);
     } else {
         file.open(filename);
@@ -134,292 +110,30 @@ void Environment::readFile() {
     file.close(); // Close the file
 }
 
-void Environment::setSeed(unsigned int seed) {
-    d_gen_environment.seed(seed);
-    std::cout<<"environmental seed: " <<seed<<'\n';
-}
 
-void Environment::setVibDistribution(double shape, double scale, double location) {
-    d_vibDist = std::gamma_distribution<double>(shape, scale);
-    d_vibLoc = location;
-}
 
-void Environment::setNonVibDistribution(double shape, double scale, double location) {
-    d_nonVibDist = std::gamma_distribution<double>(shape, scale);
-    d_nonVibLoc = location;
-}
 
 
 int Environment::getSample(double x, double y) {
-    if (method_read == 0) { // Use grid data
-        for (std::pair<int, int> coloredTile : d_grid) {
-            if (
-                (x >= 1.0 * coloredTile.first / d_nrTiles) &&
-                (x <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
-                (y >= 1.0 * coloredTile.second / d_nrTiles) &&
-                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles)
-            ) {
-                lastSample = 1;
 
-                return 1; // WHITE TILE
-            }
-        }
-        lastSample = 0;
-        return 0; // BLACK TILE
-    }
-
-    if (method_read == 2) { // Use grid data and FP / FN
-        for (std::pair<int, int> coloredTile : d_grid) {
-            if (
-                (x >= 1.0 * coloredTile.first / d_nrTiles) &&
-                (x <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
-                (y >= 1.0 * coloredTile.second / d_nrTiles) &&
-                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles)
-            ) {
-                // Sample false negative (FN) with probability `fn_prob`
-                if (bernoulli_FN(d_gen_environment)) {
-                    lastSample = 0; // False negative: white classified as black
-                    return 0; // BLACK TILE due to FN
-                } else {
-                    lastSample = 1; // True positive: white classified as white
-                    return 1; // WHITE TILE
-                }
-            }
-        }
-        if (bernoulli_FP(d_gen_environment)) {
-            lastSample = 1; // False positive: black classified as white
-            return 1; // WHITE TILE due to FP
-        } else {
-            lastSample = 0; // True negative: black classified as black
-            return 0; // BLACK TILE
-        }
-    }
-
-    if (method_read ==3){ // Use Neural Network to inference on accelerometer data
-        bool data_read = 0;
-        for (std::pair<int, int> coloredTile : d_grid) {
-            if (
-                (x >= 1.0 * coloredTile.first / d_nrTiles) &&
-                (x <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
-                (y >= 1.0 * coloredTile.second / d_nrTiles) &&
-                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles) &&
-                data_read == 0
-            ) {
-                data_matrix = readDataFromFile("../../data/capture3_80HZ_20vol.txt"); // white tile, 1
-                // std::cout<<"THE ROBOT SAMPLED 1, READ DATA3 \n";
-                data_read = 1;
-            }
-        }
-        if (data_read == 0){
-            data_matrix = readDataFromFile("../../data/capture1_60hz_30vol.txt"); // black tile, 0
-            // std::cout<<"THE ROBOT SAMPLED 0, READ DATA1 \n";
-        }
-
-
-        // Writing current data in a file to be read for inference
-        std::ofstream file("../keras2cpp/build/curr_data.txt", std::ofstream::trunc);  
-
-        if (!file.is_open()) {
-            std::cerr << "Error: Unable to open file " << std::endl;
-        }
-
-        for (const auto& row : data_matrix) {
-            for (size_t i = 0; i < row.size(); ++i) {
-                file << row[i];
-                if (i < row.size() - 1) file << "\t";  
-            }
-            file << "\n";  
-        }
-        
-        file.close();
-
-        // Call the keras2cpp executable and capture its output
-        int result = runKeras2cppExecutable();
-        if (result == -1) {
-            // std::cout << "Something went very wrong... \n";
-        }
-        if (result == 2 || result == 1) {
+    for (std::pair<int, int> coloredTile : d_grid) {
+        if (
+            (x / 100 >= 1.0 * coloredTile.first / d_nrTiles) &&
+            (x / 100 <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
+            (y / 100 >= 1.0 * coloredTile.second / d_nrTiles) &&
+            (y / 100 <= (1.0 * coloredTile.second + 1) / d_nrTiles)
+        ) {
             lastSample = 1;
-            // std::cout<<"THE INFERENCE IS 1\n";
-            return 1;
-        } else {
-            if (result == 0) {
-                lastSample = 0;
-                // std::cout<<"the inference is 0\n";
-                return 0;
-            }
-        }  
-    }
 
-    if (method_read == 1) { // Use distributions
-        for (std::pair<int, int> coloredTile : d_grid) {
-            
-            if (
-                (x >= 1.0 * coloredTile.first / d_nrTiles) &&
-                (x <= (1.0 * coloredTile.first + 1) / d_nrTiles) &&
-                (y >= 1.0 * coloredTile.second / d_nrTiles) &&
-                (y <= (1.0 * coloredTile.second + 1) / d_nrTiles)
-            ) {
-                // Sample from vibration distribution and apply location shift
-                lastSample = d_vibDist(d_gen_environment) + d_vibLoc;
-                if (lastSample > vibThresh) {return 1;}
-                else {return 0;}
-            }
+            return 1; // WHITE TILE
         }
-        // Sample from non-vibration distribution and apply location shift
-        lastSample = d_nonVibDist(d_gen_environment) + d_nonVibLoc;
-        if (lastSample > vibThresh) {return 1;}
-        else {return 0;}
     }
-
-    return 0; // Exception case
-}
-
-
-///// Additional functions for NN implementation:
-
-std::vector<std::vector<double>> Environment::readDataFromFile(const std::string& filename) {
-    std::ifstream file(filename);
-    std::vector<std::vector<double>> data_matrix;
-
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open file " << filename << std::endl;
-        return data_matrix; // Return an empty matrix if file cannot be opened
-    }
-
-    // choose a random point in the file to sample from
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 36000); // Ensure we can read 24 rows
-    int start_row = dis(gen);
-    // std::cout << start_row << " START POS \n";
+    lastSample = 0;
+    return 0; // BLACK TILE
     
-    std::string line;
-    int current_row = 0;
-    while (std::getline(file, line)) {
-        // If the current row is less than the start row, skip it
-        if (current_row < start_row) {
-            ++current_row;
-            continue;
-        }
 
-        // Stop reading if we have read 24 rows
-        if (data_matrix.size() >= 24) {
-            break;
-        }
-
-        // Parse the line into doubles and store it in the matrix
-        std::istringstream iss(line);
-        std::vector<double> row;
-        double value;
-        while (iss >> value) {
-            row.push_back(value);
-        }
-
-        if (!row.empty()) {
-            data_matrix.push_back(row); // Add the row to the matrix
-        }
-
-        ++current_row;
-    }
-
-    file.close();
-    
-    // // Debugging: Print the data matrix
-    // std::cout << "Data matrix content:" << std::endl;
-    // for (const auto& row : data_matrix) {
-    //     for (const auto& value : row) {
-    //         std::cout << value << " ";
-    //     }
-    //     std::cout << std::endl; // New line after each row
-    // }
-
-    return data_matrix; // Return the matrix
+   
 }
-
-
-int Environment::runKeras2cppExecutable() {
-    // Save the current working directory
-    char originalDir[256];
-    getcwd(originalDir, sizeof(originalDir));
-
-    // Change to the keras2cpp/build directory
-    chdir("../keras2cpp/build");
-
-    // Check if the file curr_data.txt contains 24x3 values
-    std::ifstream file("curr_data.txt");
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open curr_data.txt" << std::endl;
-        chdir(originalDir);
-        return -1;
-    }
-
-    std::string line;
-    std::vector<std::vector<double>> data;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        std::vector<double> row;
-        double value;
-        while (iss >> value) {
-            row.push_back(value);
-        }
-        if (!row.empty()) {
-            data.push_back(row);
-        }
-    }
-    file.close();
-
-    // Validate that the file contains exactly 24 rows and each row has exactly 3 values
-    if (data.size() != 24 || !std::all_of(data.begin(), data.end(), [](const std::vector<double>& row) {
-            return row.size() == 3;
-        })) {
-        chdir(originalDir);
-        return -1;
-    }
-
-    // Run keras2cpp with the dynamically generated data file as input
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen("./keras2cpp curr_data.txt", "r"), pclose);
-    if (!pipe) {
-        std::cerr << "Error: popen() failed" << std::endl;
-        chdir(originalDir);
-        return -1;
-    }
-
-    // Capture the output from keras2cpp line by line
-    char buffer[128];
-    std::string output;
-    while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {
-        output += buffer;
-    }
-
-    // Restore the original working directory
-    chdir(originalDir);
-
-    // Remove square brackets and replace commas with spaces
-    output.erase(std::remove_if(output.begin(), output.end(),
-                                [](char c) { return c == '[' || c == ']'; }),
-                 output.end());
-    std::replace(output.begin(), output.end(), ',', ' ');
-
-    // Parse output to find the index with the highest value
-    std::istringstream iss(output);
-    std::vector<double> values;
-    double number;
-    while (iss >> number) {
-        values.push_back(number);
-    }
-
-    // Find the index of the maximum value
-    if (!values.empty()) {
-        auto max_it = std::max_element(values.begin(), values.end());
-        int max_index = std::distance(values.begin(), max_it);
-        return max_index;
-    } else {
-        std::cerr << "Error: No values found in the keras2cpp output" << std::endl;
-        return -1;
-    }
-}
-
 
 // Destructor definition
 Environment::~Environment() {

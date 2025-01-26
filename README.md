@@ -1,6 +1,6 @@
 # RugBot
 
-Swarm of miniature robots. Simulated version of RugBot in Webots.
+Swarm of miniature robots. Simulated version of RugBot in WeBots.
 
 ## Overview
 
@@ -8,7 +8,7 @@ This repository simulates the RugBot robot used for surface inspection tasks at 
 
 ### Distributed Robotic Systems Lab, Groningen
 
-The Distributed Robotic Systems Lab at Groningen focuses on developing advanced robotic systems for distributed tasks. This repository contains the simulated version of the robot used in various experiments.
+The Distributed Robotic Systems Lab at Groningen focuses on developing advanced robotic systems for distributed tasks. Led by PI Bahar Haghighat, the lab explores innovative approaches in robotic simulation and control, with applications in various fields including autonomous inspection and robotic swarm coordination.
 
 ## Repository Details
 
@@ -21,34 +21,55 @@ The `main` branch is dedicated to developing core functionalities for the RugBot
 
 ## Installation
 
-To set up your environment for RugBot simulation, this repository includes a `setup.sh` script located at the root of the repository. The script will automate the installation of necessary dependencies, including Webots, GitHub Desktop, Google Chrome, and Python packages, and configure VS Code with essential extensions.
 
-### Running the `setup.sh` Script
+### Installing Webots 2023b
 
-To set up the RugBot simulation environment, run the `setup.sh` script located in the root directory of the repository. This script automates the installation of all necessary dependencies and tools required for the simulation. Start with a clean Ubuntu 22.04.1 LTS installation.
+1. **Download Webots:**
+   - Visit the Webots download page: [Webots Download](https://cyberbotics.com/download).
+   - Download the Webots 2023b for Ubuntu Linux as a `.tar.bz2` archive.
 
-#### Steps to Execute the Script
+2. **Extract Webots:**
+   - Open a terminal.
+   - Navigate to the directory where the downloaded `.tar.bz2` file is located.
+   - Use the following command to extract:
 
-1. Open a terminal and navigate to the root directory of the RugBot repository.
-2. Make the script executable (if not already done).
-3. Execute the script.
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
-   ```
+     ```bash
+     tar -xvjf webots-2023b-rev1-x86-64.tar.bz2
+     ```
 
-The script will perform the following actions (optional is not required for functionality):
-- Update the package list for your system.
-- Install Visual Studio Code.
-- Download and install Google Chrome (optional).
-- Set up and install GitHub Desktop (optional).
-- Install the DisplayLink driver (optional).
-- Install Webots for robotic simulation.
-- Install Python and the necessary packages (numpy, pandas, scipy, matplotlib, pyserial).
-- Configure Visual Studio Code with essential extensions for Python and C/C++ development.
-- Install LaTeX for rendering plots in Python.
+   Replace `webots-2023b-rev1-x86-64.tar.bz2` with the actual filename.
 
-After the script completes, you will be prompted to restart your machine to apply all changes.
+3. **Install Dependencies:**
+   - Check for any missing dependencies as per Webots documentation or runtime error messages.
+
+4. **Launch Webots:**
+   - Navigate to the extracted directory.
+   - Start Webots using:
+
+     ```bash
+     ./webots
+     ```
+
+### Setting Up GitHub Desktop
+
+1. **Download GitHub Desktop:**
+   - Visit the GitHub Desktop website: [GitHub Desktop](https://desktop.github.com/).
+   - Download the `.deb` package for Ubuntu.
+
+2. **Install GitHub Desktop:**
+   - Open a terminal.
+   - Navigate to the directory where the downloaded `.deb` file is located.
+   - Install GitHub Desktop using:
+
+     ```bash
+     sudo dpkg -i github-desktop-*.deb
+     ```
+
+   Replace `github-desktop-*.deb` with the actual filename.
+
+3. **Launch GitHub Desktop:**
+   - Open GitHub Desktop from the Applications menu or by typing `github-desktop` in the terminal.
+
 
 ## Usage
 

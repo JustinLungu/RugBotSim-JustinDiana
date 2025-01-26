@@ -29,14 +29,14 @@ int main(int argc, char* argv[]) {
         values.push_back(val);
     }
 
-    // Check that we have exactly 72 values
-    if (values.size() != 72) {
-        std::cerr << "Error: Expected 72 values for input data (24x3 matrix)." << std::endl;
+    // Check that we have exactly 3 values
+    if (values.size() != 3) {
+        std::cerr << "Error: Expected 3 values for input data (shape 3,)." << std::endl;
         return 1;
     }
 
-    // Create a tensor with shape (24, 3, 1) and fill it with values
-    Tensor in{24, 3, 1};
+    // Create a tensor with shape (1, 3) and fill it with values
+    Tensor in{3};
     for (size_t i = 0; i < values.size(); ++i) {
         in.data_[i] = values[i];
     }
@@ -45,7 +45,11 @@ int main(int argc, char* argv[]) {
     Tensor out = model(in);
 
     // Print the output
-    out.print();
+    // std::cout << "Model output from cpp: ";
+    for (size_t i = 0; i < out.size(); ++i) {
+        // std::cout << out.data_[i] << " ";
+    }
+    // std::cout << std::endl;
 
     return 0;
 }

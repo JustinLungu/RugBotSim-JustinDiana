@@ -7,9 +7,13 @@ export WEBOTS_HOME=/usr/local/webots
 #!/bin/bash
 cd "$(dirname "$0")"
 
+# Clean up CMake-generated files in keras2cpp build directory
+echo "Cleaning up CMake files in keras2cpp build directory..."
+cd keras2cpp/build
+rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile temp_input.txt
+
 # Compile keras2cpp
 echo "Configuring and compiling keras2cpp..."
-cd keras2cpp/build
 cmake ..  # Configure every time
 cmake --build . --clean-first  # Build keras2cpp
 

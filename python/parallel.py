@@ -36,7 +36,7 @@ def launch_instance(x,reevaluation = 0,run_dir=0,feedback =0,fill_ratio = 0.48,n
     job.run_webots_instance(port=1234+instance)
     fitness = job.get_fitness()
     #replace lower directory
-    job.move_results("/home/diana/Documents/_temp/",f"parallel_{run_dir}/Instance_{instance}")
+    job.move_results("/home/justin/Documents/_temp/",f"parallel_{run_dir}/Instance_{instance}")
     job.remove_run_dir()
     del x
     return fitness

@@ -7,7 +7,7 @@ from utils import *
 
 
 
-folder = "/home/diana/Documents/_temp/parallel_1/Instance_0/"
+folder = "/home/justin/Documents/_temp/parallel_1/Instance_0/"
 x = WebotsProcessor(folder=folder,filename = "webots_log_0.txt",threshold=0.5)
 
 

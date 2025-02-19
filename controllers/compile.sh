@@ -15,7 +15,7 @@ rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake Makefile temp_input.txt
 # Compile keras2cpp
 echo "Configuring and compiling keras2cpp..."
 cmake ..  # Configure every time
-cmake --build . --clean-first  # Build keras2cpp
+cmake --build .  # Build keras2cpp
 
 cd ../../
 

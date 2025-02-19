@@ -31,12 +31,6 @@ controllers/*/build/*
 *.vcxproj
 *.vcxproj.*
 
-# CMake-generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-
 # python cache files
 __pycache__/
 *.pyc
